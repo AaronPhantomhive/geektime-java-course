@@ -7,6 +7,11 @@
   ```
   堆（Heap）：JVM启动时创建，用于存放对象实例、数组和运行时常量的内存分配，也是垃圾回收的主要内存区域。当堆中没有足够内存来创建对象时，会抛出OOM（OutOfMemoryError）异常。
   JVM对堆进行了分代管理，分为新生代（Young Generation）和老年代（Old Generation）。
+  
+  虚拟机栈（Java VM Stack）：虚拟机栈是用于存储和管理Java方法执行过程中的内存模型。每个方法调用和执行都会创建一个栈帧（Stack Frame）被称为当前栈帧，并且进行入栈和出栈。栈帧存储了方法的局部变量表（Local Variable Table）、操作数栈（Operand Stack）、动态连接（Dynamic Linking）和返回地址（Return Address）等信息。线程请求的栈深度大于-Xss虚拟机深度时，会抛出StackOverflowError异常。
+  栈是运行时的单位，堆是存储的单位。
+  
+  本地方法栈（Native Method Stack）：用于储存和管理本地方法（Native Method）的调用和执行。本地方法是指非Java语言编写的方法，因此可以理解为一个本地方法（Native Method）就是一个Java调用非Java代码的接口。
   ```
 
 - 为什么堆内存要分年轻代和老年代？
