@@ -93,3 +93,4 @@ jinfo [option] <pid>
 -flag <name>=<value> 设置指定虚拟机参数的值
 ```
 
+### jmap
