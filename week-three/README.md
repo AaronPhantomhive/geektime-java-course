@@ -94,3 +94,54 @@ jinfo [option] <pid>
 ```
 
 ### jmap
+
+jmap:Memory Map
+
+jmap用来查看堆内存使用状况，一般结合jhat使用。
+
+**示例一：jmap pid**
+
+```
+jmap 1850
+```
+
+查看进程的内存映像信息。使用不带选项参数的jmap打印共享对象映射，将会打印目标虚拟机中加载的每个共享对象的起始地址、映射大小以及共享对象文件的路径全称。
+
+![jmap pid](.\note\jmap pid.jpg)
+
+**示例二：jmap -heap pid**
+
+```
+jmap -heap 1850
+```
+
+显示Java堆详细信息：打印堆的摘要信息，包括使用的GC算法、堆配置信息和各内存区域内存使用信息
+
+![jmap -heap pid](.\note\jmap -heap pid.jpg)
+
+**示例三：jmap -histo:live pid**
+
+```
+jmap -histo:live 1850
+```
+
+显示堆中对象的统计信息：其中包括每个Java类、对象数量、内存大小(单位：字节)、完全限定的类名。打印的虚拟机内部的类名称将会带有一个’*’前缀。如果ja指定了live子选项，则只计算活动的对象。
+
+![jmap -histolive pid](.\note\jmap -histolive pid.jpg)
+
+**示例四：jmap -clstats pid**
+
+打印类加载器信息：打印Java堆内存的方法区的类加载器的智能统计信息。对于每个类加载器而言，它的名称、活跃度、地址、父类加载器、它所加载的类的数量和大小都会被打印。此外，包含的字符串数量和大小也会被打印。
+
+**示例五：jmap -finalizerinfo pid**
+
+打印等待终结的对象信息
+
+**示例六：jmap -dump:format=b,file=heapdump.hprof pid**
+
+生成堆转储快照dump文件：以二进制格式转储Java堆到指定文件中。如果指定了live子选项，堆中只有活动的对象会被转储。浏览heap dump 可以使用jhat 读取生成的文件，也可以使用MAT等堆内存分析工具。
+
+注意：这个命令执行，JVM会将整个heap的信息dump写入到一个文件，heap如果比较大的话，就会导致这个过程比较耗时，并且执行的过程中为了保证dump的信息是可靠的，所以会暂停应用， 线上系统慎用！
+
+### jhat
+
