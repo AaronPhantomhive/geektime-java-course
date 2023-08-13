@@ -145,3 +145,35 @@ jmap -histo:live 1850
 
 ### jhat
 
+jhat:Java Heap Analysis Tool
+
+- jhat 命令会解析Java堆转储文件，并启动一个 web server。然后用浏览器来查看/浏览 dump 出来的 heap二进制文件。
+- jhat 命令支持预先设计的查询，比如：显示某个类的所有实例。还支持 对象查询语言（OQL）。 OQL有点类似SQL，专门用来查询堆转储。
+
+**Java生成堆转储的方式有多种:**
+
+1. 使用 jmap -dump 选项可以在JVM运行时获取 dump.
+2. 使用 jconsole 选项通过 HotSpotDiagnosticMXBean 从运行时获得堆转储。
+3. 在虚拟机启动时如果指定了 -XX:+HeapDumpOnOutOfMemoryError 选项，则抛出 OutOfMemoryError 时，会自动执行堆转储。
+
+```
+jhat [ options ] heap-dump-file
+```
+
+jhat 启动后显示的 html 页面中包含有:
+
+- All classes including platform:显示出堆中所包含的所有的类
+- Show all members of the rootset :从根集能引用到的对象
+- Show instance counts for all classes (including platform/excluding platform):显示平台包括的所有类的实例数量
+- Show heap histogram:堆实例的分布表
+- Show finalizer summary:Finalizer 摘要
+- Execute Object Query Language (OQL) query:执行对象查询语句（OQL）
+
+### jstack
+
+jstack：Java Stack Trace
+
+jstack是Java虚拟机自带的一种堆栈跟踪工具，用于生成java虚拟机当前时刻的线程快照。
+
+线程快照是当前Java虚拟机内每一条线程正在执行的方法堆栈的集合，生成线程快照的主要目的是定位线程出**现长时间停顿的原因**，如线程间死锁、死循环、请求外部资源导致的长时间等待、等等。
+
