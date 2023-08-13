@@ -177,3 +177,76 @@ jstack是Java虚拟机自带的一种堆栈跟踪工具，用于生成java虚拟
 
 线程快照是当前Java虚拟机内每一条线程正在执行的方法堆栈的集合，生成线程快照的主要目的是定位线程出**现长时间停顿的原因**，如线程间死锁、死循环、请求外部资源导致的长时间等待、等等。
 
+## 第三方工具
+
+### Arthas
+
+Arthas 是一款线上监控诊断产品，通过全局视角实时查看应用 load、内存、gc、线程的状态信息，并能在不修改应用代码的情况下，对业务问题进行诊断，包括查看方法调用的出入参、异常，监测方法执行耗时，类加载信息等，**大大提升线上问题排查效率**。
+
+下载安装与启动
+
+```shell
+# 下载arthas-boot.jar
+curl -O https://alibaba.github.io/arthas/arthas-boot.jar
+# 打印帮助信息：
+java -jar arthas-boot.jar -h
+# 启动
+java -jar arthas-boot.jar
+```
+
+![Arthas](.\note\Arthas.png)
+
+#### 常见命令
+
+- jvm：查看当前 JVM 的信息
+- thread：查看当前 JVM 的线程堆栈信息，
+  - -b 选项可以一键检测死锁
+  - -n 指定最忙的前N个线程并打印堆栈
+- trace：方法内部调用路径，并输出方法路径上的每个节点上耗时，服务间调用时间过长时使用
+- stack：输出当前方法被调用的调用路径
+- Jad：反编译指定已加载类的源码，反编译便于理解业务
+- logger：查看和修改 logger，可以动态更新日志级别
+
+支持管道：
+
+Arthas支持使用管道对上述命令的结果进行进一步的处理，如 `sm java.lang.String * | grep 'index'`
+
+- grep——搜索满足条件的结果
+- plaintext——将命令的结果去除ANSI颜色
+- wc——按行统计输出结果
+
+## JVM参数
+
+### 标准参数
+
+顾名思义，标准参数中包括功能以及输出的结果都是很稳定的，基本上不会随着JVM版本的变化而变化。
+
+标准参数以-开头，如：java -version、java -jar等，通过java -help可以查询所有的标准参数，可以通过 -help 命令来检索出所有标准参数。
+
+### 非标准参数
+
+以-X开头，是标准参数的扩展。表示在将来的JVM版本中可能会发生改变，但是这类以-X开始的参数变化比较小。
+
+可以通过 Java -X 命令来检索所有-X 参数。
+
+### 不稳定参数
+
+不稳定参数：这也是非标准化参数，相对来说不稳定，随着JVM版本的变化可能会发生变化，主要用于JVM调优和debug。
+
+不稳定参数以-XX 开头，此类参数的设置很容易引起JVM 性能上的差异，使JVM存在极大的不稳定性。如果此类参数设置合理将大大提高JVM的性能及稳定性。
+
+常用的不稳定参数：
+
+```
+-XX:+UseSerialGC 配置串行收集器
+-XX:+UseParallelGC 配置PS并行收集器
+-XX:+UseParallelOldGC 配置PO并行收集器
+-XX:+UseParNewGC 配置ParNew并行收集器
+-XX:+UseConcMarkSweepGC 配置CMS并行收集器
+-XX:+UseG1GC 配置G1并行收集器
+-XX:+PrintGCDetails 配置开启GC日志打印
+-XX:+PrintGCTimeStamps 配置开启打印GC时间戳
+-XX:+PrintGCDateStamps 配置开启打印GC日期
+-XX:+PrintHeapAtGC 配置开启在GC时，打印堆内存信息
+```
+
