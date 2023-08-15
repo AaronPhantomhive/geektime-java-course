@@ -250,3 +250,10 @@ Arthas支持使用管道对上述命令的结果进行进一步的处理，如 `
 -XX:+PrintHeapAtGC 配置开启在GC时，打印堆内存信息
 ```
 
+## GC日志
+
+```
+# 配置GC日志输出
+JAVA_OPT="${JAVA_OPT} -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -XX:+PrintHeapAtGC -Xloggc:${BASE_DIR}/logs/gc-default.log "
+```
+
