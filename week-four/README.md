@@ -112,3 +112,28 @@ WAITING(无限等待)：一个线程在等待另一个线程执行一个（唤�
 TIMED_WAITING(计时等待)：同waiting状态，有几个方法有超时参数，调用他们将进入Timed Waiting状态。这一状态将一直保持到超时期满或者接收到唤醒通知。带有超时参数的常用方法有Thread.sleep 、Object.wait
 
 TERMINATED(被终止)：因为run方法正常退出而死亡，或者因为没有捕获的异常终止了run方法而死亡
+
+![线程状态图](.\note\线程状态图.png)
+
+常用属性：
+
+- 线程名称
+- 线程ID：ThreadID = tid
+- 线程优先级：Priority
+
+常用方法：
+
+- 线程让步：yield()
+- 让线程休眠的方法：sleep()
+- 等待线程执行终止的方法： join()
+- 线程中断interrupt()
+- 等待与通知系列函数wait()、notify()、notifyAll()
+
+wait()与sleep()区别：
+
+- 主要区别：sleep()方法没有释放锁，而wait()方法释放了锁
+- 两者都可以暂停线程的执行
+- wait()通常用于线程间的交互/通信，sleep()通常用于暂停线程执行
+- wait()方法被调用后，线程不会自动苏醒，需要别的线程调用同一个对象的notify或notifyAll。
+- sleep()方法执行完成后，线程会自动苏醒。或者可以使用wait(long)超时后，线程也会自动苏醒
+
