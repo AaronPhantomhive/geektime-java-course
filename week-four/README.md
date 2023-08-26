@@ -450,3 +450,49 @@ AQS是一个同步队列，内部使用一个FIFO的双向链表，管理线程�
 
 ![AQS](.\note\AQS.png)
 
+
+### 线程池
+
+线程池（ThreadPool） 是一种基于池化思想管理线程的工具，看过new Thread源码之后我们发现，频繁创建线程销毁线程的开销很大，会降低系统整体性能。线程池维护多个线程，等待监督和管理分配可并发执行的任务。
+
+#### 优点
+
+- 降低资源消耗：通过线程池复用线程，降低创建线程和释放线程的损耗
+- 提高响应速度：任务到达时，无需等待即刻运行
+- 提高线程的可管理性：使用线程池可以进行统一的分片、调优和监控线程
+- 提供可扩展性：线程池具备可扩展性，研发人员可以向其中增加各种功能，比如延时，定时，监控等
+
+#### 适用场景
+
+- 连接池：预先申请数据库连接，提升申请连接的速度，降低系统的开销
+- 快速响应用户请求：服务器接受到大量请求时，使用线程池是很适合的，它可以大大减少线程的创建和销毁的次数，提高服务器的工作效率。
+- 在实际开发中，如果需要创建5个以上的线程，就可以用线程池来管理。
+
+#### 线程池参数
+
+- corePoolSize（int）：核心线程数
+  - 即便线程空闲（Idle）也不会回收
+- maxPoolSize（int）：最大线程数
+  - 线程池可能会在核心线程数的基础上，额外增加一些线程，但是这些新增加的线程数有一个上限，就是maxPoolSize
+- keepAliveTime（long）：保持存活时间
+- workQueue（BlockingQueue）：任务存储队列
+  - 直接交换：SynchronousQueue，这个队列没有容量，无法保存工作任务。
+  - 无界队列：LinkedBlockingQueue无界队列
+  - 有界队列：ArrayBlockingQueue有界队列
+- threadFactory（ThreadFactory）：线程池创建新线程的线程工厂类
+  - 新的线程是由ThreadFactory创建，默认使用Executors.defaultThreadFactory()，创建出来的线程都在同一个线程组，拥有同样的NORM_PRIORITY优先级并且都不是守护线程。如果自己指定ThreadFactory,则可以改变线程名、线程组、优先级、是否是守护线程
+- Handler（RejectedExecutionHandler）：线程无法接收任务时的拒绝策略
+
+#### 线程池原理
+
+- 如果线程数小于corePoolSize，即使其它工作线程处于空闲状态，也会创建一个新线程来运行新任务。
+- 如果线程数大于等于corePoolSize，但少于maxPoolSize，将任务放入队列。
+- 如果队列已满，并且线程数小于maxPoolSize，则创建一个新线程来运行任务。
+- 如果队列已满，并且线程数大于或等于maxPoolSize，则拒绝该任务。
+
+#### 增减线程的特点
+
+- 固定大小线程池：通过设置corePoolSize和maxPoolSize相同，可以创建固定大小的线程池。
+- 动态线程池：线程池希望保持较少的线程数，并且只有在负载变得很大时才会增加。可以设置corePoolSize比maxPoolSize大一些
+- 通过设置maxPoolSize为很高的值，例如Integer.MAX_VALUE，可以允许线程池容纳任意数量的并发任务。
+- 只有在队列填满时才创建多于corePoolSize的线程，所以如果用的是无界队列（LinkedBlockingQueue），则线程数就一直不会超过corePoolSize
