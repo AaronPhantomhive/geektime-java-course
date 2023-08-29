@@ -1,4 +1,6 @@
-# 网络编程
+# 网络编程基础
+
+## 网络编程
 
 ### 网络通信协议
 
@@ -137,3 +139,74 @@ URL详解：
 - 带层次的文件路径：指定服务器上的文件路径来定位特指的资源
 - 查询参数：针对已指定的文件路径内的资源，可以使用查询字符串传入任意参数，可省略
 - 片段标识符：使用片段标识符通常可标记出已获取资源中的子资源，也就是文档内的某位置，可省略
+
+## BIO与NIO
+
+### BIO
+
+BIO 有的称之为 basic(基本) IO，有的称之为 block(阻塞) IO，主要应用于文件 IO 和网络 IO。
+
+![BIO](.\note\BIO.png)
+
+### NIO
+
+**java.nio 全称 Java Non-Blocking IO，是指 JDK 提供的新 API。**
+
+从 JDK1.4 开始，Java 提供了一系列改进的输入/输出的新特性，被统称为 NIO(即 New IO)。新增了许多用于处理输入输出的类，这些类都被放在 java.nio 包及子包下，并且对原 java.io 包中的很多类进行改写，新增了满足 NIO 的功能。
+
+NIO 和 BIO 有着相同的目的和作用，但是它们的实现方式完全不同；
+
+- BIO 以流的方式处理数据，而 NIO 以块的方式处理数据，块 IO 的效率比流 IO 高很多。
+- NIO 是非阻塞式的，这一点跟 BIO 也很不相同，使用它可以提供非阻塞式的高伸缩性网络。
+
+**NIO 主要有三大核心部分：**
+
+- Channel通道
+- Buffer缓冲区
+- Selector选择器
+
+传统的 BIO 基于字节流和字符流进行操作，而 NIO 基于 Channel和 Buffer进行操作，数据总是从通道读取到缓冲区中，或者从缓冲区写入到通道中。Selector用于监听多个通道的事件（比如：连接请求，数据到达等），因此使用单个线程就可以监听多个客户端通道。
+
+### 文件 IO
+
+#### 概述和核心 API
+
+缓冲区（Buffer）：实际上是一个容器，是一个特殊的数组，缓冲区对象内置了一些机制，能够跟踪和记录缓冲区的状态变化情况。
+
+Channel 提供从文件、网络读取数据的渠道， 但是读取或写入的数据都必须经由 Buffer
+
+在 NIO 中，Buffer 是一个顶层父类，它是一个抽象类，常用的 Buffer 子类有：
+
+- ByteBuffer，存储字节数据到缓冲区
+- ShortBuffer，存储短整型数据到缓冲区
+- CharBuffer，存储字符数据到缓冲区
+- IntBuffer，存储整数数据到缓冲区
+- LongBuffer，存储长整型数据到缓冲区
+- DoubleBuffer，存储小数到缓冲区
+- FloatBuffer，存储小数到缓冲区
+
+对于 Java 中的基本数据类型， 都有一个 Buffer 类型与之相对应，最常用的自然是ByteBuffer 类（字节缓冲），该类的主要方法如下所示：
+
+- public abstract ByteBuffer put(byte[] b); 存储字节数据到缓冲区
+- public abstract byte[] get(); 从缓冲区获得字节数据
+- public final byte[] array(); 把缓冲区数据转换成字节数组
+- public static ByteBuffer allocate(int capacity); 设置缓冲区的初始容量
+- public static ByteBuffer wrap(byte[] array); 把一个现成数组放到缓冲区中使用
+- public final Buffer flip(); 翻转缓冲区，重置位置到初始位置（缓冲区有一个指针从头开始读取数据，读到缓冲区尾部时，可以使用这个方法，将指针重新定位到头）
+
+**Channel**：类似于 BIO 中的 stream，例如 FileInputStream 对象，用来建立到目标（文件，网络套接字，硬件设备等）的一个连接，但是需要注意：BIO 中的 stream 是单向的，例如 FileInputStream 对象只能进行读取数据的操作，而 NIO 中的通道(Channel)是双向的， 既可以用来进行读操作，也可以用来进行写操作。
+
+常用的 Channel 类有：FileChannel、DatagramChannel、ServerSocketChannel 和SocketChannel。
+
+- FileChannel 用于文件的数据读写
+- DatagramChannel 用于 UDP 的数据读写
+- ServerSocketChannel 和 SocketChannel 用于 TCP 的数据读写。
+
+**FileChannel** 类，该类主要用来对本地文件进行 IO 操作，主要方法如下所示：
+
+- public int read(ByteBuffer dst) ，从通道读取数据并放到缓冲区中
+- public int write(ByteBuffer src) ，把缓冲区的数据写到通道中
+- public long transferFrom(ReadableByteChannel src, long position, long count)，从目标通道中复制数据到当前通道
+- public long transferTo(long position, long count, WritableByteChannel target)，把数据从当前通道复制给目标通道
+
+### 网络 IO
