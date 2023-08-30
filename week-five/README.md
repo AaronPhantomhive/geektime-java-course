@@ -210,3 +210,78 @@ Channel 提供从文件、网络读取数据的渠道， 但是读取或写入�
 - public long transferTo(long position, long count, WritableByteChannel target)，把数据从当前通道复制给目标通道
 
 ### 网络 IO
+
+Java NIO 中的网络通道是非阻塞 IO 的实现，基于事件驱动，非常适用于服务器需要维持大量连接，但是数据交换量不大的情况
+
+在 Java 中编写 Socket 服务器，通常有以下几种模式：
+
+一个客户端连接用一个线程
+
+- 优点：程序编写简单
+- 缺点：如果连接非常多，分配的线程也会非常多，服务器可能会因为资源耗尽而崩溃。
+
+把每个客户端连接交给一个拥有固定数量线程的连接池
+
+- 优点：程序编写相对简单， 可以处理大量的连接。
+- 缺点：线程的开销非常大，连接如果非常多，排队现象会比较严重。
+
+使用 Java 的 NIO，用非阻塞的 IO 方式处理
+
+- 优点：这种模式可以用一个线程，处理大量的客户端连接
+- 缺点：代码复杂度较高，不易理解
+
+#### Selector选择器
+
+![Selector](.\note\Selector.png)
+
+该类的常用方法如下所示：
+
+- public static Selector open()，得到一个选择器对象
+- public int select(long timeout)，监控所有注册的通道，当其中有 IO 操作可以进行时，将对应的SelectionKey 加入到内部集合中并返回，参数用来设置超时时间
+- public Set selectedKeys()，从内部集合中得到所有的 SelectionKey
+
+#### SelectionKey
+
+代表了 Selector 和网络通道的注册关系
+
+一共四种（就是连接事件）
+
+- int OP_ACCEPT：有新的网络连接可以 accept，值为 16
+- int OP_CONNECT：代表连接已经建立，值为 8
+- int OP_READ 和 int OP_WRITE：代表了读、写操作，值为 1 和 4
+
+该类的常用方法如下所示：
+
+- public abstract Selector selector()，得到与之关联的 Selector 对象
+- public abstract SelectableChannel channel()，得到与之关联的通道
+- public final Object attachment()，得到与之关联的共享数据
+- public abstract SelectionKey interestOps(int ops)，设置或改变监听事件
+- public final boolean isAcceptable()，是否可以 accept
+- public final boolean isReadable()，是否可以读
+- public final boolean isWritable()，是否可以写
+
+#### ServerSocketChannel
+
+- public static ServerSocketChannel open()，得到一个 ServerSocketChannel 通道
+- public final ServerSocketChannel bind(SocketAddress local)，设置服务器端端口号
+- public final SelectableChannel configureBlocking(boolean block)，设置阻塞或非阻塞模式， 取值 false 表示采用非阻塞模式
+- public SocketChannel accept()，接受一个连接，返回代表这个连接的通道对象
+- public final SelectionKey register(Selector sel, int ops)，注册一个选择器并设置监听事件
+
+#### SocketChannel
+
+网络 IO 通道，具体负责进行读写操作
+
+NIO 总是把缓冲区的数据写入通道，或者把通道里的数据读到缓冲区。
+
+常用方法如下所示：
+
+- public static SocketChannel open()，得到一个 SocketChannel 通道
+- public final SelectableChannel configureBlocking(boolean block)，设置阻塞或非阻塞模式， 取值 false 表示采用非阻塞模式
+- public boolean connect(SocketAddress remote)，连接服务器
+- public boolean finishConnect()，如果上面的方法连接失败，接下来就要通过该方法完成连接操作
+- public int write(ByteBuffer src)，往通道里写数据
+- public int read(ByteBuffer dst)，从通道里读数据
+- public final SelectionKey register(Selector sel, int ops, Object att)，注册一个选择器并设置监听事件，最后一个参数可以设置共享数据
+- public final void close()，关闭通道
+
