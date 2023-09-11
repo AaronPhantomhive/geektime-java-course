@@ -109,3 +109,45 @@ MVCC 实现原理关键在于数据快照，不同的事务访问不同版本的
 
 MVCC 的实现依赖与Undo日志 与 Read View
 
+**作业题目：什么是 MVCC？**
+
+```
+MVCC（Multiversion concurrency control）是多版本并发控制。
+是RDBMS常用的一种并发控制方法，用来对数据库数据进行并发访问。
+它是一种用于解决数据库读写冲突的技术，通过为每个事务提供一个快照视图（ReadView），并根据一定的规则判断数据的可见性，从而实现不同隔离级别下的一致性读取。
+核心思想是读不加锁，读写不冲突。
+```
+
+**要点：**
+
+1. Redo 日志
+
+   ```
+   Redo日志是一种用于记录数据页修改操作的日志文件，它可以保证在事务提交时，把这些修改行为持久化到磁盘中，以防止系统崩溃后数据丢失。Redo日志记录了事务的行为，可以很好地通过其对页进行回滚操作，也就是undo。
+   当我们修改一条数据的时候，会把原来的值写到undo log中，当这条更新语句在事务中执行的时候，事务回滚，就可以通过 undo log将数据恢复成原来的值。
+   Undo存放在数据库内部的一个特殊段（segment）中，这个段称为Undo段（undo segment）。
+   ```
+
+2. ReadView
+
+   ```
+   ReadView是张存储事务id的表，主要包含当前系统中有哪些活跃的读写事务。
+   开启事务之后，在第一次查询(select)时，生成ReadView。
+   
+   其中包含了四个重要的属性：m_ids、min_trx_id、max_trx_id 和 。creator_trx_id。
+   m_ids：表示在生成ReadView时，当前系统中活跃的读写事务id列表
+   m_low_limit_id：事务id下限，表示当前系统中活跃的读写事务中最小的事务id，m_ids事务列表中的最小事务id
+   m_up_limit_id：事务id上限，表示生成ReadView时，系统中应该分配给下一个事务的id值
+   m_creator_trx_id：表示生成该ReadView的事务的事务id
+   ```
+
+3. 如何判断可见性
+
+   ```
+   如果 trx_id < min_trx_id，说明该版本在生成 ReadView 之前已经提交，是可见的；
+   如果 trx_id >= max_trx_id，说明该版本在生成 ReadView 之后才出现，是不可见的；
+   如果 min_trx_id <= trx_id < max_trx_id，说明该版本在生成 ReadView 时是活跃的，需要进一步判断：
+   如果 trx_id 在 m_ids 中，说明该版本还未提交，是不可见的；
+   如果 trx_id 不在 m_ids 中，说明该版本已经提交，是可见的。
+   ```
+
