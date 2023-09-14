@@ -151,3 +151,81 @@ MVCC（Multiversion concurrency control）是多版本并发控制。
    如果 trx_id 不在 m_ids 中，说明该版本已经提交，是可见的。
    ```
 
+# MySQL索引篇
+
+## 一条Select语句
+
+```mysql
+select * from tab_user WHERE id=1
+```
+
+索引往往是存储在磁盘上的文件中的
+
+我们通常所说的索引，包括聚簇索引、覆盖索引、组合索引、前缀索引、唯一索引等，没有特别说明，默认都是使用B+树结构组织的索引
+
+## 优势和劣势
+
+优势：
+
+- 可以提高数据检索的效率，降低数据库的IO成本，类似于书的目录。
+- 通过索引列对数据进行排序，降低数据排序的成本，降低了CPU的消耗。
+  - 被索引的列会自动进行排序，包括【单列索引】和【组合索引】，只是组合索引的排序要复杂一些。
+  - 如果按照索引列的顺序进行排序，对应order by语句来说，效率就会提高很多。
+
+劣势：
+
+- 索引会占据磁盘空间
+- 索引虽然会提高查询效率，但是会降低更新表的效率。比如每次对表进行增删改操作，MySQL不仅要保存数据，还要维护索引文件。
+
+## 索引的使用
+
+按照索引列的数量分类：
+
+- 单列索引：索引中只有一个列。
+- 组合索引：使用2个以上的字段创建的索引
+
+### 单列索引
+
+- 主键索引：索引列中的值必须是唯一的不允许有空值。
+
+```mysql
+ALTER TABLE table_name ADD PRIMARY KEY (column_name);
+```
+
+- 普通索引：MySQL中基本索引类型，没有什么限制，允许在定义索引的列中插入重复值和空值。
+
+```mysql
+ALTER TABLE table_name ADD INDEX index_name (column_name);
+```
+
+- 唯一索引：索引列中的值必须是唯一的，但是允许为空值。
+
+```mysql
+CREATE UNIQUE INDEX index_name ON table(column_name);
+```
+
+- 全文索引：只能在文本类型CHAR，VARCHAR，TEXT类型字段上创建全文索引。字段长度比较大时，如果创建普通索引，在进行like模糊查询时效率比较低，这时可以创建全文索引。MyISAM和InnoDB中都可以使用全文索引。
+- 空间索引：MySQL在5.7之后的版本支持了空间索引，而且支持OpenGIS几何数据模型。MySQL在空间索引这方面遵循OpenGIS几何数据模型规则。
+- 前缀索引：在文本类型如CHAR，VARCHAR，TEXT类列上创建索引时，可以指定索引列的长度，但是数值类型不能指定。
+
+### 组合索引
+
+- 组合索引的使用，需要遵循最左前缀原则
+- 一般情况下，建议使用组合索引代替单列索引
+
+```mysql
+ALTER TABLE table_name ADD INDEX index_name (column1,column2);
+```
+
+### 删除索引
+
+```mysql
+DROP INDEX index_name ON table
+```
+
+### 查看索引
+
+```mysql
+SHOW INDEX FROM table_name
+```
+
