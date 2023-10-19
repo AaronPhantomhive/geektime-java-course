@@ -50,5 +50,37 @@ unlock tables;
 
 或者断开加锁session的连接，自动释放全局锁
 
+### 表级锁
+
+MySQL的表级锁有四种：
+
+- 表读锁（Table Read Lock）
+- 表写锁（Table Write Lock）
+- 元数据锁（meta data lock，MDL)
+- 自增锁(AUTO-INC Locks)
+
+#### 表读锁、写锁
+
+MySQL 实现的表级锁定的争用状态变量
+
+```sql
+# 查看表锁定状态
+mysql> show status like 'table%';
+```
+
+- table_locks_immediate：产生表级锁定的次数；
+- table_locks_waited：出现表级锁定争用而发生等待的次数；
+
+手动增加表锁：
+
+```sql
+lock table 表名称 read(write),表名称2 read(write)，其他;
+# 举例：
+lock table t read; #为表t加读锁
+lock table t write; #为表t加写锁
+```
+
+
+
 # MySQL性能优化篇
 
